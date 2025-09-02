@@ -5,261 +5,142 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PDF Tools Hub</title>
   <style>
-    body {
-      margin: 0;
-      font-family: "Segoe UI", Tahoma, sans-serif;
-      display: flex;
-      height: 100vh;
-      background: #f5f6fa;
-      color: #333;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: 250px;
-      background: #1e1e2f;
-      color: white;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      top: 0;
-      bottom: 0;
-      left: 0;
-      transition: transform 0.3s ease;
-    }
-    .sidebar.hidden {
-      transform: translateX(-100%);
-    }
-    .sidebar h2 {
-      text-align: center;
-      padding: 1rem;
-      margin: 0;
-      font-size: 1.2rem;
-      background: #27293d;
-    }
-    .menu {
-      flex-grow: 1;
-      padding: 1rem 0;
-    }
-    .menu a {
-      display: block;
-      padding: 0.8rem 1rem;
-      text-decoration: none;
-      color: white;
-      transition: background 0.2s;
-    }
-    .menu a:hover {
-      background: #34344e;
-    }
-
-    /* Content */
-    .content {
-      margin-left: 250px;
-      flex-grow: 1;
-      padding: 20px;
-      overflow-y: auto;
-      transition: margin-left 0.3s ease;
-    }
-    .content.full {
-      margin-left: 0;
-    }
-
-    /* Header */
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: white;
-      padding: 10px 15px;
-      border-bottom: 1px solid #ddd;
-    }
-    .hamburger {
-      font-size: 20px;
-      cursor: pointer;
-      display: none;
-    }
-
-    /* Tool Section */
-    .tool-section {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    h3 {
-      margin-top: 0;
-    }
-
-    /* Image Preview */
-    .preview-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 15px;
-    }
-    .preview-item {
-      position: relative;
-    }
-    .preview-item img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    .remove-btn {
-      position: absolute;
-      top: 2px;
-      right: 2px;
-      background: rgba(0,0,0,0.6);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    /* Buttons */
-    .btn {
-      background: #4a6cf7;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-      margin-top: 15px;
-    }
-    .btn:hover {
-      background: #3450c5;
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .sidebar {
-        position: fixed;
-        height: 100%;
-        z-index: 1000;
-      }
-      .content {
-        margin-left: 0;
-      }
-      .hamburger {
-        display: block;
-      }
-    }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f9; }
+    header { background: #333; color: white; padding: 10px 20px; text-align: center; }
+    .container { display: flex; flex-wrap: wrap; justify-content: space-around; padding: 20px; }
+    .tool { background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 30%; margin: 10px; padding: 20px; }
+    .tool h2 { margin-top: 0; }
+    .tool button { background: #007bff; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; }
+    .tool button:hover { background: #0056b3; }
+    input[type="file"] { display: none; }
+    .output { margin-top: 10px; text-align: center; }
+    .output a { color: #007bff; text-decoration: none; }
+    .output a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar -->
-  <div class="sidebar hidden" id="sidebar">
-    <h2>PDF Tools Hub</h2>
-    <div class="menu">
-      <a href="#" onclick="showTool('imageToPdf')">Image → PDF</a>
-      <a href="#" onclick="showTool('mergePdf')">Merge PDFs</a>
-      <a href="#" onclick="showTool('splitPdf')">Split PDF</a>
-      <a href="#" onclick="showTool('compressPdf')">Compress PDF</a>
-      <a href="#" onclick="showTool('watermarkPdf')">Add Watermark</a>
-      <a href="#" onclick="showTool('protectPdf')">Protect PDF</a>
-      <a href="#" onclick="showTool('unlockPdf')">Unlock PDF</a>
-    </div>
+<header>
+  <h1>PDF Tools Hub</h1>
+  <p>Manage your PDFs effortlessly</p>
+</header>
+
+<div class="container">
+  <!-- Remove Pages Tool -->
+  <div class="tool">
+    <h2>Remove Pages</h2>
+    <button onclick="document.getElementById('remove-file').click()">Upload PDF</button>
+    <input id="remove-file" type="file" accept="application/pdf" onchange="handleRemoveFile(event)">
+    <div class="output" id="remove-output"></div>
   </div>
 
-  <!-- Main Content -->
-  <div class="content full" id="content">
-    <div class="header">
-      <span class="hamburger" onclick="toggleSidebar()">☰</span>
-      <h2 id="toolTitle">Dashboard</h2>
-    </div>
-
-    <!-- Dashboard -->
-    <div id="dashboard" class="tool-section">
-      <h3>Welcome to PDF Tools Hub</h3>
-      <p>Select a tool from the sidebar to get started.</p>
-    </div>
-
-    <!-- Image to PDF Tool -->
-    <div id="imageToPdf" class="tool-section" style="display:none;">
-      <h3>Image → PDF</h3>
-      <input type="file" id="imageInput" accept="image/*" multiple>
-      <div class="preview-container" id="preview"></div>
-      <button class="btn" onclick="generatePDF()">Generate PDF</button>
-    </div>
-
-    <!-- Other tools (placeholders) -->
-    <div id="mergePdf" class="tool-section" style="display:none;"><h3>Merge PDFs</h3><p>Coming soon...</p></div>
-    <div id="splitPdf" class="tool-section" style="display:none;"><h3>Split PDF</h3><p>Coming soon...</p></div>
-    <div id="compressPdf" class="tool-section" style="display:none;"><h3>Compress PDF</h3><p>Coming soon...</p></div>
-    <div id="watermarkPdf" class="tool-section" style="display:none;"><h3>Add Watermark</h3><p>Coming soon...</p></div>
-    <div id="protectPdf" class="tool-section" style="display:none;"><h3>Protect PDF</h3><p>Coming soon...</p></div>
-    <div id="unlockPdf" class="tool-section" style="display:none;"><h3>Unlock PDF</h3><p>Coming soon...</p></div>
+  <!-- Rotate Pages Tool -->
+  <div class="tool">
+    <h2>Rotate Pages</h2>
+    <button onclick="document.getElementById('rotate-file').click()">Upload PDF</button>
+    <input id="rotate-file" type="file" accept="application/pdf" onchange="handleRotateFile(event)">
+    <div class="output" id="rotate-output"></div>
   </div>
 
-  <!-- JS Libraries -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- Flatten PDF Tool -->
+  <div class="tool">
+    <h2>Flatten PDF</h2>
+    <button onclick="document.getElementById('flatten-file').click()">Upload PDF</button>
+    <input id="flatten-file" type="file" accept="application/pdf" onchange="handleFlattenFile(event)">
+    <div class="output" id="flatten-output"></div>
+  </div>
+</div>
 
-  <script>
-    const { jsPDF } = window.jspdf;
-    let images = [];
+<script src="https://unpkg.com/pdf-lib"></script>
+<script>
+  // Remove Pages
+  async function handleRemoveFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const pdfBytes = await file.arrayBuffer();
+    const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+    const pages = pdfDoc.getPages();
+    const totalPages = pages.length;
 
-    function toggleSidebar() {
-      document.getElementById("sidebar").classList.toggle("hidden");
-    }
+    // Prompt user for pages to remove
+    const pagesToRemove = prompt(`Enter page numbers to remove (1-${totalPages}), separated by commas:`).split(',').map(num => parseInt(num.trim()) - 1);
 
-    function showTool(toolId) {
-      document.querySelectorAll(".tool-section").forEach(sec => sec.style.display = "none");
-      document.getElementById(toolId).style.display = "block";
-      document.getElementById("toolTitle").textContent = document.getElementById(toolId).querySelector("h3").textContent;
-      if (window.innerWidth <= 768) toggleSidebar();
-    }
-
-    document.getElementById("imageInput").addEventListener("change", function(event) {
-      const files = Array.from(event.target.files);
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = e => {
-          images.push(e.target.result);
-          renderPreviews();
-        };
-        reader.readAsDataURL(file);
-      });
+    // Remove selected pages
+    pagesToRemove.forEach(pageIndex => {
+      if (pageIndex >= 0 && pageIndex < totalPages) {
+        pdfDoc.removePage(pageIndex);
+      }
     });
 
-    function renderPreviews() {
-      const preview = document.getElementById("preview");
-      preview.innerHTML = "";
-      images.forEach((src, index) => {
-        const div = document.createElement("div");
-        div.classList.add("preview-item");
-        div.innerHTML = `
-          <img src="${src}">
-          <button class="remove-btn" onclick="removeImage(${index})">×</button>
-        `;
-        preview.appendChild(div);
-      });
+    // Save and download the modified PDF
+    const pdfBytesModified = await pdfDoc.save();
+    const blob = new Blob([pdfBytesModified], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'modified.pdf';
+    link.click();
+
+    // Display output
+    document.getElementById('remove-output').innerHTML = 'PDF processed successfully. <a href="' + url + '" download>Download</a>';
+  }
+
+  // Rotate Pages
+  async function handleRotateFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const pdfBytes = await file.arrayBuffer();
+    const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+    const pages = pdfDoc.getPages();
+
+    // Prompt user for rotation angle
+    const angle = parseInt(prompt('Enter rotation angle (90, 180, 270):'));
+    if (![90, 180, 270].includes(angle)) {
+      alert('Invalid angle. Please enter 90, 180, or 270.');
+      return;
     }
 
-    function removeImage(index) {
-      images.splice(index, 1);
-      renderPreviews();
-    }
+    // Rotate each page
+    pages.forEach(page => {
+      page.setRotation(page.getRotation() + angle);
+    });
 
-    function generatePDF() {
-      if (images.length === 0) {
-        alert("Please add at least one image.");
-        return;
-      }
-      const pdf = new jsPDF();
-      images.forEach((img, i) => {
-        if (i > 0) pdf.addPage();
-        pdf.addImage(img, "JPEG", 10, 10, 190, 277);
-      });
-      pdf.save("output.pdf");
-    }
-  </script>
+    // Save and download the rotated PDF
+    const pdfBytesRotated = await pdfDoc.save();
+    const blob = new Blob([pdfBytesRotated], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'rotated.pdf';
+    link.click();
+
+    // Display output
+    document.getElementById('rotate-output').innerHTML = 'PDF rotated successfully. <a href="' + url + '" download>Download</a>';
+  }
+
+  // Flatten PDF
+  async function handleFlattenFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const pdfBytes = await file.arrayBuffer();
+    const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+
+    // Flatten the PDF
+    pdfDoc.flatten();
+
+    // Save and download the flattened PDF
+    const pdfBytesFlattened = await pdfDoc.save();
+    const blob = new Blob([pdfBytesFlattened], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'flattened.pdf';
+    link.click();
+
+    // Display output
+    document.getElementById('flatten-output').innerHTML = 'PDF flattened successfully. <a href="' + url + '" download>Download</a>';
+  }
+</script>
+
 </body>
 </html>
