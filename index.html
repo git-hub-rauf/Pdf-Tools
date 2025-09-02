@@ -1,577 +1,94 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>PDF Tools — Professional</title>
-<link rel="icon" href="data:," />
-<style>
-  :root{
-    --bg:#0b0c10; --panel:#111216; --muted:#9aa0b2; --text:#e6eef8; --accent:#4f7bff;
-    --card-radius:12px;
-  }
-  *{box-sizing:border-box}
-  body{
-    margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;
-    background:linear-gradient(180deg,var(--bg),#0f1115 60%);
-    color:var(--text); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
-    min-height:100vh; display:flex; flex-direction:column;
-  }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Tools</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
 
-  /* Header */
-  header{
-    background:linear-gradient(180deg,#0f1116,#0b0c10);
-    border-bottom:1px solid rgba(255,255,255,0.03);
-    padding:18px 20px; text-align:center;
-  }
-  header .title{font-weight:700; font-size:18px; letter-spacing:0.2px;}
-  header .subtitle{color:var(--muted); font-size:13px; margin-top:6px;}
+    /* Navbar */
+    .navbar {
+      background: #222;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
 
-  /* Layout */
-  .wrap{max-width:1180px; margin:28px auto; padding:8px;}
-  .grid{display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(320px,1fr));}
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: 500;
+    }
 
-  /* Card */
-  .card{
-    background:var(--panel); border-radius:var(--card-radius);
-    padding:18px; box-shadow: 0 8px 28px rgba(2,6,23,0.6);
-    border:1px solid rgba(255,255,255,0.02);
-    display:flex; flex-direction:column; min-height:170px;
-  }
-  .card h3{margin:0 0 8px; font-size:16px;}
-  .card .desc{color:var(--muted); font-size:13px; margin-bottom:12px;}
-  .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
 
-  /* Inputs & buttons */
-  input[type="file"]{display:none}
-  .btn{
-    display:inline-flex; align-items:center; justify-content:center;
-    gap:8px; padding:10px 14px; border-radius:10px; border:0; cursor:pointer;
-    background:var(--accent); color:white; font-weight:600; font-size:14px;
-  }
-  .btn.secondary{background:#1b1e26; color:var(--text); border:1px solid rgba(255,255,255,0.04)}
-  .btn.ghost{background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--muted)}
-  .small{padding:8px 10px; font-size:13px; border-radius:8px}
-  .muted{color:var(--muted); font-size:13px}
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 200px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      z-index: 1;
+      border-radius: 5px;
+    }
 
-  /* Drop area */
-  .drop{
-    margin-top:8px; padding:14px; border-radius:10px;
-    border:2px dashed rgba(255,255,255,0.03); background:rgba(255,255,255,0.01);
-    text-align:center; color:var(--muted); font-size:14px;
-  }
-  .drop.drag{border-color:rgba(79,123,255,0.9); background:rgba(79,123,255,0.04); color:var(--text)}
+    .dropdown-content a {
+      color: #333;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+    }
 
-  .thumbs{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
-  .thumb{background:#0d0f12; border-radius:8px; padding:8px 10px; font-size:13px; color:var(--muted); border:1px solid rgba(255,255,255,0.02)}
+    .dropdown-content a:hover {
+      background-color: #f1f1f1;
+    }
 
-  .footer{margin:26px 0 40px; text-align:center; color:var(--muted); font-size:13px}
-  .note{font-size:12px;color:var(--muted); margin-top:8px}
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
 
-  /* Responsive tweaks */
-  @media (max-width:420px){
-    .controls{flex-direction:column; align-items:stretch}
-    .btn{width:100%}
-  }
-</style>
+    .dropdown:hover > a {
+      color: #ffcc00;
+    }
+  </style>
 </head>
 <body>
-  <header>
-    <div class="title">PDF Tools</div>
-    <div class="subtitle">Fast, private PDF utilities — everything runs in your browser</div>
-  </header>
 
-  <main class="wrap">
-    <div class="grid">
-
-      <!-- 1. Image → PDF -->
-      <section class="card" id="tool-img2pdf">
-        <h3>Image → PDF</h3>
-        <div class="desc">Convert one or multiple images (JPG/PNG/WEBP) into a single PDF. Reorder before export.</div>
-
-        <div class="controls">
-          <label class="btn secondary" id="imgPickBtn">Select images
-            <input id="imgInput" type="file" accept="image/*" multiple>
-          </label>
-          <button class="btn" id="imgMakePdf">Create PDF</button>
-          <button class="btn ghost" id="imgClear">Clear</button>
+  <div class="navbar">
+    <div class="logo"><a href="#">PDF Tools</a></div>
+    <div class="menu">
+      <a href="#">Home</a>
+      <div class="dropdown">
+        <a href="#">Tools ▾</a>
+        <div class="dropdown-content">
+          <a href="#">Merge PDF</a>
+          <a href="#">Split PDF</a>
+          <a href="#">Compress PDF</a>
+          <a href="#">PDF to Word</a>
+          <a href="#">Word to PDF</a>
+          <a href="#">More coming soon...</a>
         </div>
-
-        <div class="drop" id="imgDrop">Drag & drop images here (or use Select images)</div>
-        <div class="thumbs" id="imgThumbs"></div>
-        <div class="note">Tip: on iPhone, save HEICs as JPG via Photos → Share → Save as Image for best compatibility.</div>
-      </section>
-
-      <!-- 2. Merge PDFs -->
-      <section class="card" id="tool-merge">
-        <h3>Merge PDFs</h3>
-        <div class="desc">Combine multiple PDF files into a single document. Reorder if needed.</div>
-
-        <div class="controls">
-          <label class="btn secondary">Select PDFs
-            <input id="mergeInput" type="file" accept="application/pdf" multiple>
-          </label>
-          <button class="btn" id="mergeDo">Merge</button>
-          <button class="btn ghost" id="mergeClear">Clear</button>
-        </div>
-
-        <div class="drop" id="mergeDrop">Drag & drop PDF files here</div>
-        <div class="thumbs" id="mergeThumbs"></div>
-        <div class="note">Files processed locally in your browser.</div>
-      </section>
-
-      <!-- 3. Compress PDF (basic) -->
-      <section class="card" id="tool-compress">
-        <h3>Compress PDF (basic)</h3>
-        <div class="desc">Reduce file size by re-saving and re-encoding where possible. Results vary by file.</div>
-
-        <div class="controls">
-          <label class="btn secondary">Select PDF
-            <input id="compressInput" type="file" accept="application/pdf">
-          </label>
-          <label class="small muted">Image quality
-            <input id="compressQuality" type="range" min="0.4" max="1" step="0.05" value="0.85">
-          </label>
-          <button class="btn" id="compressDo">Compress</button>
-          <button class="btn ghost" id="compressClear">Clear</button>
-        </div>
-
-        <div class="drop" id="compressDrop">Drop a PDF here</div>
-        <div class="thumbs" id="compressThumbs"></div>
-        <div class="note">This tool performs client-side optimizations. For deep compression, server-side tools (Ghostscript) are stronger.</div>
-      </section>
-
-      <!-- 4. Split PDF -->
-      <section class="card" id="tool-split">
-        <h3>Split PDF</h3>
-        <div class="desc">Extract individual pages or a range of pages into a new PDF.</div>
-
-        <div class="controls">
-          <label class="btn secondary">Select PDF
-            <input id="splitInput" type="file" accept="application/pdf">
-          </label>
-          <input id="splitFrom" type="number" min="1" placeholder="From (page)" class="small" style="width:110px">
-          <input id="splitTo" type="number" min="1" placeholder="To (page)" class="small" style="width:110px">
-          <button class="btn" id="splitDo">Extract</button>
-          <button class="btn ghost" id="splitClear">Clear</button>
-        </div>
-
-        <div class="drop" id="splitDrop">Drop PDF here</div>
-        <div class="thumbs" id="splitThumbs"></div>
-        <div class="note">Page numbers start at 1. Leave To blank to extract a single page.</div>
-      </section>
-
-      <!-- 5. Add Text Watermark -->
-      <section class="card" id="tool-watermark">
-        <h3>Add Text Watermark</h3>
-        <div class="desc">Apply a text watermark to every page (position, opacity adjustable).</div>
-
-        <div class="controls">
-          <label class="btn secondary">Select PDF
-            <input id="wmInput" type="file" accept="application/pdf">
-          </label>
-          <input id="wmText" type="text" placeholder="Watermark text (e.g. Confidential)" class="small" style="min-width:160px">
-          <label class="small muted">Opacity
-            <input id="wmOpacity" type="range" min="0.1" max="1" step="0.05" value="0.18">
-          </label>
-          <button class="btn" id="wmDo">Apply</button>
-          <button class="btn ghost" id="wmClear">Clear</button>
-        </div>
-
-        <div class="drop" id="wmDrop">Drop PDF here</div>
-        <div class="thumbs" id="wmThumbs"></div>
-        <div class="note">Watermark is rendered on top of pages using vector text (no server needed).</div>
-      </section>
-
-      <!-- 6. Protect (Encrypt Container) -->
-      <section class="card" id="tool-protect">
-        <h3>Protect (Encrypt)</h3>
-        <div class="desc">Encrypt a PDF into a secure container file (`.enc`) using a password. This is NOT PDF-native password protection, but it is strong AES-GCM encryption and keeps your file private.</div>
-
-        <div class="controls">
-          <label class="btn secondary">Select PDF
-            <input id="protectInput" type="file" accept="application/pdf">
-          </label>
-          <input id="protectPass" type="password" placeholder="Password" class="small" style="min-width:160px">
-          <button class="btn" id="protectDo">Encrypt & Download</button>
-          <button class="btn ghost" id="protectClear">Clear</button>
-        </div>
-
-        <div class="drop" id="protectDrop">Drop PDF here</div>
-        <div class="thumbs" id="protectThumbs"></div>
-        <div class="note">To unlock, use the Unlock tool below and provide the same password.</div>
-      </section>
-
-      <!-- 7. Unlock (Decrypt Container) -->
-      <section class="card" id="tool-unlock">
-        <h3>Unlock (Decrypt)</h3>
-        <div class="desc">Open a previously encrypted `.enc` file created by this site (requires the correct password). The decrypted PDF is returned to you in the browser.</div>
-
-        <div class="controls">
-          <label class="btn secondary">Select .enc
-            <input id="unlockInput" type="file" accept=".enc,application/octet-stream">
-          </label>
-          <input id="unlockPass" type="password" placeholder="Password" class="small" style="min-width:160px">
-          <button class="btn" id="unlockDo">Decrypt & Download</button>
-          <button class="btn ghost" id="unlockClear">Clear</button>
-        </div>
-
-        <div class="drop" id="unlockDrop">Drop .enc file here</div>
-        <div class="thumbs" id="unlockThumbs"></div>
-        <div class="note">This decrypt method is compatible only with files created by this Protect tool.</div>
-      </section>
-
+      </div>
+      <a href="#">About</a>
+      <a href="#">Contact</a>
     </div>
+  </div>
 
-    <div class="footer">
-      All processing happens in your browser. No files are uploaded to any server. © 2025
-    </div>
-  </main>
+  <div style="padding:40px; text-align:center;">
+    <h1>Welcome to Your PDF Tools</h1>
+    <p>Choose any tool from the dropdown menu above.</p>
+  </div>
 
-  <!-- Libraries -->
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-
-  <script>
-  /**********************************************************************
-   * Utilities
-   **********************************************************************/
-  const $ = id => document.getElementById(id);
-  const toDataURL = (file) => new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result);
-    r.onerror = rej;
-    r.readAsDataURL(file);
-  });
-  const bytesFromFile = file => file.arrayBuffer().then(ab => new Uint8Array(ab));
-  const downloadBlob = (blob, filename) => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = filename;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url), 5000);
-  };
-  const addThumb = (containerId, name) => {
-    const c = $(containerId);
-    c.innerHTML = ''; // show last selected only (keeps UI clean)
-    const d = document.createElement('div'); d.className='thumb'; d.textContent = name;
-    c.appendChild(d);
-  };
-
-  /**********************************************************************
-   * 1) Image -> PDF (jsPDF)
-   **********************************************************************/
-  let imgFiles = [];
-  $('imgInput').addEventListener('change', e => {
-    imgFiles = Array.from(e.target.files);
-    $('imgThumbs').innerHTML = '';
-    imgFiles.forEach(f => $('imgThumbs').appendChild(Object.assign(document.createElement('div'), {className:'thumb', textContent:f.name})));
-  });
-
-  // Drag & drop
-  const setupDrop = (dropEl, inputEl, onDropFiles) => {
-    dropEl.addEventListener('dragenter', e => { e.preventDefault(); dropEl.classList.add('drag'); });
-    dropEl.addEventListener('dragover', e => { e.preventDefault(); dropEl.classList.add('drag'); });
-    dropEl.addEventListener('dragleave', e => { e.preventDefault(); dropEl.classList.remove('drag'); });
-    dropEl.addEventListener('drop', e => {
-      e.preventDefault(); dropEl.classList.remove('drag');
-      const files = Array.from(e.dataTransfer.files);
-      if (files.length) {
-        inputEl.files = e.dataTransfer.files; // set input for consistency
-        onDropFiles(files);
-      }
-    });
-  };
-
-  setupDrop($('imgDrop'), $('imgInput'), files => {
-    imgFiles = files.filter(f => f.type && f.type.startsWith('image/'));
-    $('imgThumbs').innerHTML = '';
-    imgFiles.forEach(f => $('imgThumbs').appendChild(Object.assign(document.createElement('div'), {className:'thumb', textContent:f.name})));
-  });
-
-  $('imgMakePdf').addEventListener('click', async () => {
-    if (!imgFiles || !imgFiles.length) return alert('Select images first.');
-    const { jsPDF } = window.jspdf;
-    const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
-    for (let i=0;i<imgFiles.length;i++){
-      const f = imgFiles[i];
-      const dataUrl = await toDataURL(f);
-      // load into Image to compute ratio
-      const img = new Image();
-      img.src = dataUrl;
-      await new Promise(r => img.onload = r);
-      const pxW = img.width, pxH = img.height;
-      // A4 size in mm: 210 x 297, use margins
-      const margin = 12;
-      const maxW = 210 - margin*2;
-      const maxH = 297 - margin*2;
-      const pxToMm = 0.264583;
-      let w = pxW * pxToMm, h = pxH * pxToMm;
-      const ratio = Math.min(maxW / w, maxH / h, 1);
-      w = w * ratio; h = h * ratio;
-      const x = (210 - w) / 2, y = (297 - h) / 2;
-      if (i>0) pdf.addPage();
-      // Add JPEG (convert if needed)
-      pdf.addImage(dataUrl, 'JPEG', x, y, w, h, undefined, 'FAST');
-    }
-    const blob = pdf.output('blob');
-    downloadBlob(blob, 'images.pdf');
-  });
-
-  $('imgClear').addEventListener('click', ()=>{ imgFiles = []; $('imgThumbs').innerHTML = ''; $('imgInput').value = ''; });
-
-  /**********************************************************************
-   * 2) Merge PDFs (pdf-lib)
-   **********************************************************************/
-  let mergeFiles = [];
-  $('mergeInput').addEventListener('change', async e => {
-    mergeFiles = Array.from(e.target.files);
-    $('mergeThumbs').innerHTML = '';
-    mergeFiles.forEach(f => $('mergeThumbs').appendChild(Object.assign(document.createElement('div'), {className:'thumb', textContent:f.name})));
-  });
-  setupDrop($('mergeDrop'), $('mergeInput'), files => {
-    mergeFiles = files.filter(f => f.type === 'application/pdf');
-    $('mergeThumbs').innerHTML = '';
-    mergeFiles.forEach(f => $('mergeThumbs').appendChild(Object.assign(document.createElement('div'), {className:'thumb', textContent:f.name})));
-  });
-
-  $('mergeDo').addEventListener('click', async () => {
-    if (!mergeFiles || mergeFiles.length < 1) return alert('Select one or more PDFs.');
-    const outDoc = await PDFLib.PDFDocument.create();
-    for (const f of mergeFiles){
-      const bytes = await f.arrayBuffer();
-      const src = await PDFLib.PDFDocument.load(bytes);
-      const copied = await outDoc.copyPages(src, src.getPageIndices());
-      copied.forEach(p => outDoc.addPage(p));
-    }
-    const mergedBytes = await outDoc.save();
-    downloadBlob(new Blob([mergedBytes], {type:'application/pdf'}), 'merged.pdf');
-  });
-
-  $('mergeClear').addEventListener('click', ()=>{ mergeFiles = []; $('mergeThumbs').innerHTML = ''; $('mergeInput').value = ''; });
-
-  /**********************************************************************
-   * 3) Compress PDF (basic)
-   * Strategy: load pages, re-create PDF; optionally downsample images by rendering to canvas (best-effort).
-   **********************************************************************/
-  let compressFile = null;
-  $('compressInput').addEventListener('change', e => {
-    compressFile = e.target.files[0];
-    addThumb('compressThumbs', compressFile ? compressFile.name : '');
-  });
-  setupDrop($('compressDrop'), $('compressInput'), files => {
-    compressFile = files[0];
-    addThumb('compressThumbs', compressFile ? compressFile.name : '');
-  });
-
-  $('compressDo').addEventListener('click', async () => {
-    if (!compressFile) return alert('Select a PDF first.');
-    const quality = parseFloat($('compressQuality').value || '0.85');
-    const srcBytes = await compressFile.arrayBuffer();
-    const src = await PDFLib.PDFDocument.load(srcBytes);
-    const out = await PDFLib.PDFDocument.create();
-
-    // For each page, embed as PNG/JPEG image to reduce size (best-effort)
-    // NOTE: this method rasterizes pages -> smaller often, but reduces vector quality.
-    for (const i of src.getPageIndices()){
-      const [page] = await out.copyPages(src, [i]); // copy the page structure (fallback)
-      // We'll attempt to rasterize by rendering page to canvas via svg? Browser lacks pdf renderer.
-      // So fallback: copy page structure (may not compress much).
-      out.addPage(page);
-    }
-
-    // Save with object streams enabled (some small gains)
-    const bytes = await out.save({ useObjectStreams: true });
-    downloadBlob(new Blob([bytes], {type:'application/pdf'}), 'compressed.pdf');
-  });
-
-  $('compressClear').addEventListener('click', ()=>{ compressFile = null; $('compressThumbs').innerHTML = ''; $('compressInput').value = ''; });
-
-  /**********************************************************************
-   * 4) Split PDF
-   **********************************************************************/
-  let splitFile = null;
-  $('splitInput').addEventListener('change', async e => {
-    splitFile = e.target.files[0];
-    addThumb('splitThumbs', splitFile ? splitFile.name : '');
-    // If we can, populate max page hint (optional)
-  });
-  setupDrop($('splitDrop'), $('splitInput'), files => {
-    splitFile = files[0]; addThumb('splitThumbs', splitFile ? splitFile.name : '');
-  });
-
-  $('splitDo').addEventListener('click', async () => {
-    if (!splitFile) return alert('Select a PDF first.');
-    const from = parseInt($('splitFrom').value || '1', 10);
-    const toVal = $('splitTo').value.trim();
-    const to = toVal ? parseInt(toVal, 10) : from;
-    if (isNaN(from) || isNaN(to) || from < 1 || to < from) return alert('Invalid page numbers.');
-
-    const srcBytes = await splitFile.arrayBuffer();
-    const src = await PDFLib.PDFDocument.load(srcBytes);
-    const total = src.getPageCount();
-    if (from > total || to > total) return alert('Page number out of range.');
-
-    const out = await PDFLib.PDFDocument.create();
-    const indices = [];
-    for (let p = from-1; p <= to-1; p++) indices.push(p);
-    const copied = await out.copyPages(src, indices);
-    copied.forEach(p => out.addPage(p));
-    const bytes = await out.save();
-    const filename = `pages-${from}-${to}.pdf`;
-    downloadBlob(new Blob([bytes], {type:'application/pdf'}), filename);
-  });
-
-  $('splitClear').addEventListener('click', ()=>{ splitFile = null; $('splitThumbs').innerHTML=''; $('splitInput').value=''; $('splitFrom').value=''; $('splitTo').value=''; });
-
-  /**********************************************************************
-   * 5) Watermark (text) - adds centered diagonal watermark on each page
-   **********************************************************************/
-  let wmFile = null;
-  $('wmInput').addEventListener('change', e => { wmFile = e.target.files[0]; addThumb('wmThumbs', wmFile ? wmFile.name : ''); });
-  setupDrop($('wmDrop'), $('wmInput'), files => { wmFile = files[0]; addThumb('wmThumbs', wmFile ? wmFile.name : ''); });
-
-  $('wmDo').addEventListener('click', async () => {
-    if (!wmFile) return alert('Select a PDF first.');
-    const text = $('wmText').value.trim() || 'CONFIDENTIAL';
-    const opacity = parseFloat($('wmOpacity').value || '0.18');
-
-    const srcBytes = await wmFile.arrayBuffer();
-    const src = await PDFLib.PDFDocument.load(srcBytes);
-    const out = await PDFLib.PDFDocument.create();
-
-    // Use a standard font (Helvetica)
-    const helv = await out.embedFont(PDFLib.StandardFonts.Helvetica);
-    for (let i = 0; i < src.getPageCount(); i++){
-      const [page] = await out.copyPages(src, [i]);
-      out.addPage(page);
-      const p = out.getPage(i);
-      const { width, height } = p.getSize();
-
-      // Add watermark centered and rotated
-      const fontSize = Math.min(72, Math.max(24, Math.floor(Math.min(width, height) / 6)));
-      p.drawText(text, {
-        x: width / 2 - (helv.widthOfTextAtSize(text, fontSize) / 2),
-        y: height / 2,
-        size: fontSize,
-        font: helv,
-        color: PDFLib.rgb(0.6,0.6,0.6),
-        rotate: PDFLib.degrees(-40),
-        opacity: opacity,
-      });
-    }
-    const bytes = await out.save();
-    downloadBlob(new Blob([bytes], {type:'application/pdf'}), 'watermarked.pdf');
-  });
-
-  $('wmClear').addEventListener('click', ()=>{ wmFile = null; $('wmThumbs').innerHTML=''; $('wmInput').value=''; $('wmText').value=''; });
-
-  /**********************************************************************
-   * 6) Protect (Encrypt) and 7) Unlock (Decrypt)
-   * We implement AES-GCM encryption of the raw PDF bytes. Result is a .enc file
-   * that the Unlock tool can decrypt (in-browser) when given the password.
-   **********************************************************************/
-  // Helpers: derive key from password via PBKDF2
-  async function deriveKey(password, salt) {
-    const enc = new TextEncoder();
-    const keyMaterial = await window.crypto.subtle.importKey(
-      "raw",
-      enc.encode(password),
-      { name: "PBKDF2" },
-      false,
-      ["deriveKey"]
-    );
-    return crypto.subtle.deriveKey({
-      name: "PBKDF2",
-      salt: salt,
-      iterations: 200000,
-      hash: "SHA-256"
-    }, keyMaterial, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
-  }
-
-  // Encrypt, output format: [version(1)][saltLength(1)][salt][ivLength(1)][iv][cipherBytes]
-  async function encryptBytes(bytes, password) {
-    const salt = crypto.getRandomValues(new Uint8Array(16));
-    const iv = crypto.getRandomValues(new Uint8Array(12));
-    const key = await deriveKey(password, salt);
-    const cipher = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, bytes);
-    // build container
-    const ver = new Uint8Array([1]);
-    const slen = new Uint8Array([salt.length]);
-    const ivlen = new Uint8Array([iv.length]);
-    const cipherArr = new Uint8Array(cipher);
-    const out = new Uint8Array(ver.length + slen.length + salt.length + ivlen.length + iv.length + cipherArr.length);
-    let p = 0;
-    out.set(ver, p); p+=ver.length;
-    out.set(slen, p); p+=slen.length;
-    out.set(salt, p); p+=salt.length;
-    out.set(ivlen, p); p+=ivlen.length;
-    out.set(iv, p); p+=iv.length;
-    out.set(cipherArr, p);
-    return out;
-  }
-
-  async function decryptBytes(container, password) {
-    const view = new Uint8Array(container);
-    let p = 0;
-    const ver = view[p]; p+=1;
-    if (ver !== 1) throw new Error("Unsupported file version");
-    const slen = view[p]; p+=1;
-    const salt = view.slice(p, p+slen); p+=slen;
-    const ivlen = view[p]; p+=1;
-    const iv = view.slice(p, p+ivlen); p+=ivlen;
-    const cipher = view.slice(p);
-    const key = await deriveKey(password, salt);
-    const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv }, key, cipher);
-    return new Uint8Array(plain);
-  }
-
-  // Protect
-  let protectFile = null;
-  $('protectInput').addEventListener('change', e => { protectFile = e.target.files[0]; addThumb('protectThumbs', protectFile ? protectFile.name : ''); });
-  setupDrop($('protectDrop'), $('protectInput'), files => { protectFile = files[0]; addThumb('protectThumbs', protectFile ? protectFile.name : ''); });
-
-  $('protectDo').addEventListener('click', async () => {
-    if (!protectFile) return alert('Select a PDF to encrypt.');
-    const pass = $('protectPass').value;
-    if (!pass) return alert('Enter a password.');
-    const bytes = new Uint8Array(await protectFile.arrayBuffer());
-    try {
-      const enc = await encryptBytes(bytes, pass);
-      const blob = new Blob([enc], {type: 'application/octet-stream'});
-      downloadBlob(blob, protectFile.name + '.enc');
-    } catch (err) {
-      console.error(err); alert('Encryption failed: ' + err.message);
-    }
-  });
-
-  $('protectClear').addEventListener('click', ()=>{ protectFile=null; $('protectThumbs').innerHTML=''; $('protectInput').value=''; $('protectPass').value=''; });
-
-  // Unlock
-  let unlockFile = null;
-  $('unlockInput').addEventListener('change', e => { unlockFile = e.target.files[0]; addThumb('unlockThumbs', unlockFile ? unlockFile.name : ''); });
-  setupDrop($('unlockDrop'), $('unlockInput'), files => { unlockFile = files[0]; addThumb('unlockThumbs', unlockFile ? unlockFile.name : ''); });
-
-  $('unlockDo').addEventListener('click', async () => {
-    if (!unlockFile) return alert('Select an .enc file created by this site.');
-    const pass = $('unlockPass').value;
-    if (!pass) return alert('Enter the password.');
-    try {
-      const container = await unlockFile.arrayBuffer();
-      const bytes = await decryptBytes(container, pass);
-      const blob = new Blob([bytes], {type:'application/pdf'});
-      const name = unlockFile.name.replace(/\.enc$/i, '') || 'decrypted.pdf';
-      downloadBlob(blob, name);
-    } catch (err) {
-      console.error(err);
-      alert('Decryption failed — wrong password or file corrupted.');
-    }
-  });
-
-  $('unlockClear').addEventListener('click', ()=>{ unlockFile=null; $('unlockThumbs').innerHTML=''; $('unlockInput').value=''; $('unlockPass').value=''; });
-
-  // Add small UX polish: prevent default on dragover to allow drop on whole page
-  window.addEventListener('dragover', e => e.preventDefault());
-  window.addEventListener('drop', e => e.preventDefault());
-  </script>
 </body>
 </html>
