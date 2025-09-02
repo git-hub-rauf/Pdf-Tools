@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Quick Document Converter</title>
+<link rel="icon" href="data:,"/>
+<style>
+  :root{
+    --bg:#0e0f13;--card:#14161c;--muted:#7b8294;--text:#e8ebf2;--accent:#5b8cff;--accent-2:#6ee7b7;--danger:#ff6b6b;
+    --radius:14px;--radius-sm:10px;--shadow:0 10px 30px rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:linear-gradient(160deg,#0b0c10,#13141a 30%,#0e0f13);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial}
+  .wrap{max-width:980px;margin:32px auto;padding:20px}
+  header{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+  .logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#9aaeff);box-shadow:0 6px 20px rgba(91,140,255,.4)}
+  h1{font-size:1.6rem;margin:0}
+  p.sub{margin:6px 0 0;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:1fr;gap:18px}
+  @media(min-width:860px){.grid{grid-template-columns:1fr 1fr}}
+  .card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);border:1px solid rgba(255,255,255,.06)}
+  .card h2{font-size:1.05rem;margin:0 0 12px}
+  .hint{font-size:.9rem;color:var(--muted);margin:6px 0 12px}
+  .drop{border:1.5px dashed rgba(255,255,255,.14);border-radius:var(--radius-sm);padding:16px;text-align:center;transition:all .15s}
+  .drop.dragover{border-color:var(--accent);background:rgba(91,140,255,.08)}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:0;cursor:pointer;background:var(--accent);color:white;font-weight:600}
+  .btn.secondary{background:#262a34}
+  .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.12)}
+  .btn.danger{background:var(--danger)}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:12px}
+  .thumb{position:relative;background:#0f1117;border:1px solid rgba(255,255,255,.08);border-radius:10px;overflow:hidden}
+  .thumb img,.thumb .pdf{width:100%;height:90px;object-fit:cover;display:block}
+  .badge{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);padding:2px 8px;border-radius:999px;font-size:.75rem}
+  .actions{position:absolute;right:6px;top:6px;display:flex;gap:6px}
+  .tiny{font-size:.8rem;padding:6px 9px;border-radius:9px;border:1px solid rgba(255,255,255,.12);background:#1a1d25;color:#e7e9f2}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  select,input[type="number"],input[type="range"]{background:#1a1d25;border:1px solid rgba(255,255,255,.12);color:#e8ebf2;border-radius:10px;padding:10px}
+  .range-row{display:flex;align-items:center;gap:10px}
+  .footer{margin-top:24px;color:var(--muted);font-size:.9rem;text-align:center}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="logo"></div>
+      <div>
+        <h1>Quick Document Converter</h1>
+        <p class="sub">Images → PDF • Merge PDFs — all in your browser</p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Images to PDF -->
+      <section class="card" id="img2pdf">
+        <h2>Images ➜ Single PDF</h2>
+        <div class="hint">Add JPG/PNG/WEBP (HEIC may not work on all browsers). Reorder pages before exporting.</div>
+
+        <div class="drop" id="imgDrop">
+          <p>Drag & drop images here or</p>
+          <button class="btn secondary" id="pickImages">Choose Images</button>
+          <input type="file" id="imgInput" accept="image/*" multiple hidden>
+        </div>
+
+        <div class="controls">
+          <label>Page size:
+            <select id="pageSize">
+              <option value="a4">A4 (portrait)</option>
+              <option value="letter">US Letter (portrait)</option>
+              <option value="auto">Auto (fit to each image)</option>
+            </select>
+          </label>
+          <label>Margin (mm):
+            <input type="number" id="margin" value="8" min="0" max="50" step="1">
+          </label>
+          <div class="range-row">
+            <label>Image quality</label>
+            <input type="range" id="imgQuality" min="0.5" max="1" step="0.05" value="0.92">
+          </div>
+        </div>
+
+        <div class="thumbs" id="imgThumbs"></div>
+
+        <div class="row" style="margin-top:12px">
+          <button class="btn" id="makePdf">Create PDF</button>
+          <button class="btn ghost" id="clearImgs">Clear</button>
+        </div>
+      </section>
+
+      <!-- Merge PDFs -->
+      <section class="card" id="mergepdf">
+        <h2>Merge PDFs ➜ One PDF</h2>
+        <div class="hint">Add two or more PDF files, reorder if needed, then merge.</div>
+
+        <div class="drop" id="pdfDrop">
+          <p>Drag & drop PDFs here or</p>
+          <button class="btn secondary" id="pickPdfs">Choose PDFs</button>
+          <input type="file" id="pdfInput" accept="application/pdf" multiple hidden>
+        </div>
+
+        <div class="thumbs" id="pdfThumbs"></div>
+
+        <div class="row" style="margin-top:12px">
+          <button class="btn" id="mergeBtn">Merge PDFs</button>
+          <button class="btn ghost" id="clearPdfs">Clear</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer">Tip: On iPhone, if your camera saves HEIC, convert to JPG in Photos → Share → Save as Image, or pick “Most Compatible” in Camera settings.</div>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+  <script>
+  // ---------- Helpers ----------
+  const $ = s => document.querySelector(s);
+  const makeThumb = (name, idx, kind='img') => {
+    const el = document.createElement('div'); el.className='thumb'; el.dataset.index=idx;
+    const actions = document.createElement('div'); actions.className='actions';
+    const up = document.createElement('button'); up.className='tiny'; up.textContent='↑';
+    const down = document.createElement('button'); down.className='tiny'; down.textContent='↓';
+    const del = document.createElement('button'); del.className='tiny'; del.textContent='✕';
+    actions.append(up,down,del);
+    const badge = document.createElement('div'); badge.className='badge'; badge.textContent = name;
+    el.append(actions,badge);
+    return {el, up, down, del};
+  };
+  const moveItem = (arr, from, to) => { if(to<0||to>=arr.length) return; [arr[from],arr[to]]=[arr[to],arr[from]]; };
+
+  // ---------- IMAGES -> PDF ----------
+  const imgState = { items: [] }; // {file, url, name, el}
+  const imgThumbs = $('#imgThumbs');
+  const imgDrop = $('#imgDrop');
+  const imgInput = $('#imgInput');
+  $('#pickImages').onclick = ()=> imgInput.click();
+  imgInput.onchange = e => addImages([...e.target.files]);
+  ['dragenter','dragover'].forEach(ev=>imgDrop.addEventListener(ev,e=>{e.preventDefault();imgDrop.classList.add('dragover');}));
+  ['dragleave','drop'].forEach(ev=>imgDrop.addEventListener(ev,e=>{e.preventDefault(); if(ev==='drop'){ addImages([...e.dataTransfer.files]); } imgDrop.classList.remove('dragover');}));
+
+  function addImages(files){
+    files.filter(f=>/^image\//.test(f.type)).forEach((file)=>{
+      const url = URL.createObjectURL(file);
+      const idx = imgState.items.length;
+      const {el, up, down, del} = makeThumb(file.name, idx, 'img');
+      const img = document.createElement('img'); img.src = url; el.prepend(img);
+      imgThumbs.appendChild(el);
+      const item = {file,url,name:file.name,el};
+      imgState.items.push(item);
+
+      up.onclick = ()=>{ const i = imgState.items.indexOf(item); moveItem(imgState.items,i,i-1); renderImgThumbs(); };
+      down.onclick = ()=>{ const i = imgState.items.indexOf(item); moveItem(imgState.items,i,i+1); renderImgThumbs(); };
+      del.onclick = ()=>{ imgState.items = imgState.items.filter(x=>x!==item); URL.revokeObjectURL(url); renderImgThumbs(); };
+    });
+  }
+  function renderImgThumbs(){
+    imgThumbs.innerHTML='';
+    imgState.items.forEach((it,idx)=>{
+      const {el,up,down,del} = makeThumb(it.name, idx, 'img');
+      const img = document.createElement('img'); img.src = it.url; el.prepend(img);
+      imgThumbs.appendChild(el);
+      up.onclick = ()=>{ const i = imgState.items.indexOf(it); moveItem(imgState.items,i,i-1); renderImgThumbs(); };
+      down.onclick = ()=>{ const i = imgState.items.indexOf(it); moveItem(imgState.items,i,i+1); renderImgThumbs(); };
+      del.onclick = ()=>{ imgState.items = imgState.items.filter(x=>x!==it); URL.revokeObjectURL(it.url); renderImgThumbs(); };
+    });
+  }
+  $('#clearImgs').onclick = ()=>{ imgState.items.forEach(it=>URL.revokeObjectURL(it.url)); imgState.items=[]; renderImgThumbs(); };
+
+  $('#makePdf').onclick = async ()=>{
+    if(!imgState.items.length){ alert('Add some images first.'); return; }
+    const { jsPDF } = window.jspdf;
+    const sizeSel = $('#pageSize').value;
+    const marginMM = Math.max(0, parseInt($('#margin').value||'0',10));
+    const quality = parseFloat($('#imgQuality').value||'0.92');
+
+    const pdf = new jsPDF({orientation:'p', unit:'mm', format: sizeSel==='letter' ? 'letter' : 'a4'});
+    for(let i=0;i<imgState.items.length;i++){
+      const it = imgState.items[i];
+      const dataUrl = await imageToDataUrl(it.file, quality);
+      const img = await loadImage(dataUrl);
+      // page sizing
+      let pageW = pdf.internal.pageSize.getWidth();
+      let pageH = pdf.internal.pageSize.getHeight();
+      if(sizeSel==='auto'){
+        // fit page to image aspect ratio (portrait)
+        const mmPerPx = 0.264583; // approx
+        pageW = Math.max(50, Math.min(210, img.width*mmPerPx));
+        pageH = Math.max(50, Math.min(297, img.height*mmPerPx));
+        if(i===0){ pdf.setPage(1); pdf.internal.pageSize.width = pageW; pdf.internal.pageSize.height = pageH; }
+        else { pdf.addPage([pageW, pageH], 'portrait'); }
+      } else {
+        if(i>0) pdf.addPage();
+      }
+      const maxW = pageW - marginMM*2;
+      const maxH = pageH - marginMM*2;
+      const {w,h} = fitContain(img.width, img.height, maxW/0.264583, maxH/0.264583); // convert mm->px approx
+      const x = (pageW - w*0.264583)/2;
+      const y = (pageH - h*0.264583)/2;
+      pdf.addImage(dataUrl, 'JPEG', x, y, w*0.264583, h*0.264583, undefined, 'FAST');
+    }
+    pdf.save('images.pdf');
+  };
+
+  function fitContain(sw,sh,maxW,maxH){
+    const r = Math.min(maxW/sw, maxH/sh);
+    return {w: Math.round(sw*r), h: Math.round(sh*r)};
+  }
+  function imageToDataUrl(file, quality=0.92){
+    return new Promise((resolve,reject)=>{
+      const reader = new FileReader();
+      reader.onload = ()=> {
+        const img = new Image();
+        img.onload = ()=>{
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width; canvas.height = img.height;
+          const ctx = canvas.getContext('2d'); ctx.drawImage(img,0,0);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = reject; img.src = reader.result;
+      };
+      reader.onerror = reject; reader.readAsDataURL(file);
+    });
+  }
+  function loadImage(src){ return new Promise((res,rej)=>{ const i=new Image(); i.onload=()=>res(i); i.onerror=rej; i.src=src; }); }
+
+  // ---------- MERGE PDFs ----------
+  const pdfState = { items: [] }; // {file, name, bytes}
+  const pdfThumbs = $('#pdfThumbs');
+  const pdfDrop = $('#pdfDrop');
+  const pdfInput = $('#pdfInput');
+  $('#pickPdfs').onclick = ()=> pdfInput.click();
+  pdfInput.onchange = e => addPdfs([...e.target.files]);
+  ['dragenter','dragover'].forEach(ev=>pdfDrop.addEventListener(ev,e=>{e.preventDefault();pdfDrop.classList.add('dragover');}));
+  ['dragleave','drop'].forEach(ev=>pdfDrop.addEventListener(ev,e=>{e.preventDefault(); if(ev==='drop'){ addPdfs([...e.dataTransfer.files]); } pdfDrop.classList.remove('dragover');}));
+
+  function addPdfs(files){
+    files.filter(f=>f.type==='application/pdf').forEach(async (file)=>{
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const item = {file,name:file.name,bytes};
+      pdfState.items.push(item);
+      renderPdfThumbs();
+    });
+  }
+  function renderPdfThumbs(){
+    pdfThumbs.innerHTML='';
+    pdfState.items.forEach((it,idx)=>{
+      const {el,up,down,del} = makeThumb(it.name, idx, 'pdf');
+      const pdfIcon = document.createElement('div');
+      pdfIcon.className='pdf';
+      pdfIcon.style.display='grid'; pdfIcon.style.placeItems='center';
+      pdfIcon.textContent='PDF';
+      el.prepend(pdfIcon);
+      pdfThumbs.appendChild(el);
+      up.onclick = ()=>{ const i = pdfState.items.indexOf(it); moveItem(pdfState.items,i,i-1); renderPdfThumbs(); };
+      down.onclick = ()=>{ const i = pdfState.items.indexOf(it); moveItem(pdfState.items,i,i+1); renderPdfThumbs(); };
+      del.onclick = ()=>{ pdfState.items = pdfState.items.filter(x=>x!==it); renderPdfThumbs(); };
+    });
+  }
+  $('#clearPdfs').onclick = ()=>{ pdfState.items=[]; renderPdfThumbs(); };
+
+  $('#mergeBtn').onclick = async ()=>{
+    if(pdfState.items.length<2){ alert('Add at least two PDFs.'); return; }
+    const out = await PDFLib.PDFDocument.create();
+    for(const it of pdfState.items){
+      const src = await PDFLib.PDFDocument.load(it.bytes);
+      const pages = await out.copyPages(src, src.getPageIndices());
+      pages.forEach(p=>out.addPage(p));
+    }
+    const merged = await out.save();
+    downloadBytes(merged, 'merged.pdf');
+  };
+
+  function downloadBytes(bytes, filename){
+    const blob = new Blob([bytes], {type:'application/pdf'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download=filename; a.click();
+    setTimeout(()=>URL.revokeObjectURL(url), 5000);
+  }
+  </script>
+</body>
+</html>
