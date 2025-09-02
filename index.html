@@ -4,352 +4,317 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Premium PDF Tools Hub</title>
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- pdf-lib -->
+<script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+<!-- CryptoJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
 <style>
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f3f4f6;
-    color: #333;
-  }
-  header {
-    background: #1f2937;
-    color: #f9fafb;
-    padding: 15px 20px;
-    text-align: center;
-  }
-  header h1 {
-    margin: 0;
-    font-size: 1.8em;
-  }
-  .container {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  .sidebar {
-    background: #111827;
-    color: #f9fafb;
-    width: 250px;
-    min-height: 100vh;
-    padding-top: 20px;
-  }
-  .sidebar h2 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  .sidebar button {
-    display: block;
-    width: 90%;
-    margin: 5px auto;
-    padding: 10px;
-    border: none;
-    background: #374151;
-    color: #f9fafb;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: left;
-  }
-  .sidebar button:hover {
-    background: #4b5563;
-  }
-  .main {
-    flex: 1;
-    padding: 20px;
-    min-height: 100vh;
-  }
-  .tool {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-    padding: 20px;
-  }
-  .tool h2 {
-    margin-top: 0;
-  }
-  .tool button, .tool input[type="file"] {
-    display: block;
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 5px;
-    width: 100%;
-    cursor: pointer;
-  }
-  .tool button {
-    background: #3b82f6;
-    color: #fff;
-    border: none;
-  }
-  .tool button:hover {
-    background: #2563eb;
-  }
-  .output a {
-    color: #3b82f6;
-    text-decoration: none;
-    font-weight: bold;
-  }
-  .output a:hover {
-    text-decoration: underline;
-  }
-  @media(max-width: 768px) {
-    .container { flex-direction: column; }
-    .sidebar { width: 100%; min-height: auto; display: flex; overflow-x: auto; }
-    .sidebar button { flex: 1; margin: 5px; text-align: center; }
-  }
+  body {margin:0;font-family:Arial,sans-serif;background:#f4f4f4;color:#222;}
+  .sidebar {position:fixed;top:0;left:0;width:220px;height:100%;background:#1e1e2f;color:white;transition:0.3s;overflow:auto;}
+  .sidebar h2{text-align:center;padding:15px 0;margin:0;border-bottom:1px solid #444;}
+  .sidebar a{display:block;color:white;padding:12px 20px;text-decoration:none;transition:0.2s;}
+  .sidebar a:hover{background:#353550;}
+  .sidebar a.active{background:#4b4b7c;}
+  .content{margin-left:220px;padding:20px;transition:0.3s;}
+  .preview-container{display:flex;flex-wrap:wrap;gap:10px;margin-top:15px;}
+  .preview-item{position:relative;border:1px solid #ccc;padding:5px;background:white;}
+  .preview-item img{max-width:100px;max-height:100px;display:block;}
+  .remove-btn{position:absolute;top:0;right:0;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;}
+  select, input[type=text], input[type=file], button{margin:5px 0;padding:8px;width:100%;box-sizing:border-box;}
+  button{background:#4b4b7c;color:white;border:none;cursor:pointer;}
+  button:hover{background:#353550;}
+  @media(max-width:768px){.sidebar{width:100%;height:auto;position:relative;}.content{margin-left:0;}}
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Premium PDF Tools Hub</h1>
-  <p>All your PDF tools in one place</p>
-</header>
-
-<div class="container">
-  <div class="sidebar">
-    <h2>Tools</h2>
-    <button onclick="showTool('imagepdf')">Image → PDF</button>
-    <button onclick="showTool('mergepdf')">Merge PDFs</button>
-    <button onclick="showTool('splitpdf')">Split PDF</button>
-    <button onclick="showTool('compresspdf')">Compress PDF</button>
-    <button onclick="showTool('watermarkpdf')">Add Watermark</button>
-    <button onclick="showTool('protectpdf')">Protect/Unlock PDF</button>
-    <button onclick="showTool('removepages')">Remove Pages</button>
-    <button onclick="showTool('rotatepages')">Rotate Pages</button>
-    <button onclick="showTool('flattenpdf')">Flatten PDF</button>
-  </div>
-
-  <div class="main">
-    <!-- Tools Container -->
-    <div id="tools-container"></div>
-  </div>
+<div class="sidebar">
+  <h2>PDF Tools Hub</h2>
+  <a href="#" class="active" onclick="showTool('imagepdf')">Image → PDF</a>
+  <a href="#" onclick="showTool('mergepdf')">Merge PDFs</a>
+  <a href="#" onclick="showTool('splitpdf')">Split PDF</a>
+  <a href="#" onclick="showTool('compresspdf')">Compress PDF</a>
+  <a href="#" onclick="showTool('watermarkpdf')">Add Watermark</a>
+  <a href="#" onclick="showTool('protectpdf')">Protect / Unlock PDF</a>
 </div>
 
-<script src="https://unpkg.com/pdf-lib"></script>
+<div class="content" id="content">
+  <!-- Tool content injected here -->
+</div>
+
 <script>
-const toolsContainer = document.getElementById('tools-container');
+const { jsPDF } = window.jspdf;
+let currentTool='imagepdf';
+let images=[];
 
-function showTool(tool) {
-  if(tool === 'imagepdf') {
-    toolsContainer.innerHTML = `
-      <div class="tool">
-        <h2>Image → PDF</h2>
-        <input id="imagepdf-input" type="file" multiple accept="image/*">
-        <button onclick="convertImagesToPDF()">Convert to PDF</button>
-        <div class="output" id="imagepdf-output"></div>
-      </div>`;
-  } else if(tool === 'mergepdf') {
-    toolsContainer.innerHTML = `
-      <div class="tool">
-        <h2>Merge PDFs</h2>
-        <input id="mergepdf-input" type="file" multiple accept="application/pdf">
-        <button onclick="mergePDFs()">Merge PDFs</button>
-        <div class="output" id="mergepdf-output"></div>
-      </div>`;
-  } else if(tool === 'splitpdf') {
-    toolsContainer.innerHTML = `
-      <div class="tool">
-        <h2>Split PDF</h2>
-        <input id="splitpdf-input" type="file" accept="application/pdf">
-        <button onclick="splitPDF()">Split PDF</button>
-        <div class="output" id="splitpdf-output"></div>
-      </div>`;
-  } else if(tool === 'compresspdf') {
-    toolsContainer.innerHTML = `
-      <div class="tool">
-        <h2>Compress PDF</h2>
-        <input id="compresspdf-input" type="file" accept="application/pdf">
-        <button onclick="compressPDF()">Compress PDF</button>
-        <div class="output" id="compresspdf-output"></div>
-      </div>`;
-  } else if(tool === 'watermarkpdf') {
-    toolsContainer.innerHTML = `
-      <div class="tool">
-        <h2>Add Watermark</h2>
-        <input id="watermarkpdf-input" type="file" accept="application/pdf">
-        <input id="watermark-text" placeholder="Watermark Text" type="text">
-        <button onclick="addWatermark()">Add Watermark</button>
-        <div class="output" id="watermarkpdf-output"></div>
-      </div>`;
-  } else if(tool === 'protectpdf') {
-    toolsContainer.innerHTML = `
-      <div class="tool">
-        <h2>Protect/Unlock PDF</h2>
-        <input id="protectpdf-input" type="file" accept="application/pdf">
-        <input id="protect-password" placeholder="Enter password" type="text">
-        <button onclick="protectUnlockPDF()">Protect/Unlock PDF</button>
-        <div class="output" id="protectpdf-output"></div>
-      </div>`;
-  } else if(tool === 'removepages') {
-    toolsContainer.innerHTML = `
-      <div class="tool">
-        <h2>Remove Pages</h2>
-        <input id="removepages-input" type="file" accept="application/pdf">
-        <button onclick="removePages()">Remove Pages</button>
-        <div class="output" id="removepages-output"></div>
-      </div>`;
-  } else if(tool === 'rotatepages') {
-    toolsContainer.innerHTML = `
-      <div class="tool">
-        <h2>Rotate Pages</h2>
-        <input id="rotatepages-input" type="file" accept="application/pdf">
-        <button onclick="rotatePages()">Rotate Pages</button>
-        <div class="output" id="rotatepages-output"></div>
-      </div>`;
-  } else if(tool === 'flattenpdf') {
-    toolsContainer.innerHTML = `
-      <div class="tool">
-        <h2>Flatten PDF</h2>
-        <input id="flattenpdf-input" type="file" accept="application/pdf">
-        <button onclick="flattenPDF()">Flatten PDF</button>
-        <div class="output" id="flattenpdf-output"></div>
-      </div>`;
-  }
+function showTool(tool){
+  currentTool=tool;
+  const links=document.querySelectorAll('.sidebar a');
+  links.forEach(a=>a.classList.remove('active'));
+  links.forEach(a=>{if(a.textContent.replace(/\s/g,'').toLowerCase().includes(tool)) a.classList.add('active');});
+  if(tool==='imagepdf') renderImagePDF();
+  else if(tool==='mergepdf') renderMergePDF();
+  else if(tool==='splitpdf') renderSplitPDF();
+  else if(tool==='compresspdf') renderCompressPDF();
+  else if(tool==='watermarkpdf') renderWatermarkPDF();
+  else if(tool==='protectpdf') renderProtectPDF();
 }
 
-// PDF Tools Functions
-async function convertImagesToPDF() {
-  const input = document.getElementById('imagepdf-input');
-  if(!input.files.length) return alert('Upload images first');
-  const pdfDoc = await PDFLib.PDFDocument.create();
-  for(const file of input.files){
-    const imgBytes = await file.arrayBuffer();
-    let img;
-    if(file.type.includes('png')){
-      img = await pdfDoc.embedPng(imgBytes);
-    } else {
-      img = await pdfDoc.embedJpg(imgBytes);
-    }
-    const page = pdfDoc.addPage([img.width, img.height]);
-    page.drawImage(img, {x:0, y:0, width: img.width, height: img.height});
-  }
-  const pdfBytes = await pdfDoc.save();
-  const blob = new Blob([pdfBytes], {type:'application/pdf'});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'images.pdf';
-  link.click();
+// ---------------- IMAGE → PDF ----------------
+function renderImagePDF(){
+  images=[];
+  document.getElementById('content').innerHTML=`
+    <h1>Image → PDF</h1>
+    <input type="file" id="imageFiles" accept="image/*" multiple><br>
+    <input type="text" id="filename" placeholder="Output filename"><br>
+    <div class="preview-container" id="preview"></div>
+    <button onclick="generateImagePDF()">Generate PDF</button>
+  `;
+  document.getElementById('imageFiles').addEventListener('change', handleImageUpload);
+  suggestFilename();
 }
 
-async function mergePDFs() {
-  const input = document.getElementById('mergepdf-input');
-  if(!input.files.length) return alert('Upload PDFs first');
-  const mergedPdf = await PDFLib.PDFDocument.create();
-  for(const file of input.files){
-    const pdfBytes = await file.arrayBuffer();
-    const pdf = await PDFLib.PDFDocument.load(pdfBytes);
-    const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-    copiedPages.forEach(page => mergedPdf.addPage(page));
-  }
-  const pdfBytes = await mergedPdf.save();
-  const blob = new Blob([pdfBytes], {type:'application/pdf'});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'merged.pdf';
-  link.click();
-}
-
-async function splitPDF() {
-  const input = document.getElementById('splitpdf-input');
-  if(!input.files.length) return alert('Upload a PDF first');
-  const pdfBytes = await input.files[0].arrayBuffer();
-  const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-  const pages = pdfDoc.getPages();
-  for(let i=0;i<pages.length;i++){
-    const newPdf = await PDFLib.PDFDocument.create();
-    const [copied] = await newPdf.copyPages(pdfDoc, [i]);
-    newPdf.addPage(copied);
-    const newBytes = await newPdf.save();
-    const blob = new Blob([newBytes], {type:'application/pdf'});
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `page-${i+1}.pdf`;
-    link.click();
-  }
-}
-
-async function compressPDF() {
-  alert('Compressing PDF in-browser is limited. Advanced compression requires server-side processing.');
-}
-
-async function addWatermark() {
-  const input = document.getElementById('watermarkpdf-input');
-  const text = document.getElementById('watermark-text').value;
-  if(!input.files.length) return alert('Upload PDF first');
-  if(!text) return alert('Enter watermark text');
-  const pdfBytes = await input.files[0].arrayBuffer();
-  const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-  const pages = pdfDoc.getPages();
-  for(const page of pages){
-    page.drawText(text, {x:50, y:50, size:30, opacity:0.3});
-  }
-  const newBytes = await pdfDoc.save();
-  const blob = new Blob([newBytes], {type:'application/pdf'});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'watermarked.pdf';
-  link.click();
-}
-
-async function protectUnlockPDF() {
-  alert('Protect/Unlock PDF client-side requires more advanced JS libraries. Skipping for now.');
-}
-
-async function removePages() {
-  const input = document.getElementById('removepages-input');
-  if(!input.files.length) return alert('Upload PDF first');
-  const pdfBytes = await input.files[0].arrayBuffer();
-  const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-  const pages = pdfDoc.getPages();
-  const totalPages = pages.length;
-  const pagesToRemove = prompt(`Enter pages to remove (1-${totalPages}), separated by commas:`).split(',').map(p=>parseInt(p.trim())-1);
-  pagesToRemove.forEach(p=>{
-    if(p>=0 && p<totalPages) pdfDoc.removePage(p);
+function handleImageUpload(e){
+  Array.from(e.target.files).forEach(f=>{
+    const reader=new FileReader();
+    reader.onload=()=>{ images.push({src:reader.result, mode:'color'}); renderPreviews(); }
+    reader.readAsDataURL(f);
   });
-  const newBytes = await pdfDoc.save();
-  const blob = new Blob([newBytes], {type:'application/pdf'});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'modified.pdf';
-  link.click();
 }
 
-async function rotatePages() {
-  const input = document.getElementById('rotatepages-input');
-  if(!input.files.length) return alert('Upload PDF first');
-  const pdfBytes = await input.files[0].arrayBuffer();
-  const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-  const pages = pdfDoc.getPages();
-  const angle = parseInt(prompt('Enter rotation angle (90,180,270):'));
-  if(![90,180,270].includes(angle)) return alert('Invalid angle');
-  pages.forEach(p=>p.setRotation(p.getRotation()+angle));
-  const newBytes = await pdfDoc.save();
-  const blob = new Blob([newBytes], {type:'application/pdf'});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'rotated.pdf';
-  link.click();
+function renderPreviews(){
+  const preview=document.getElementById('preview');
+  preview.innerHTML='';
+  images.forEach((imgObj,i)=>{
+    const div=document.createElement('div'); div.className='preview-item';
+    const img=document.createElement('img'); img.src=imgObj.src;
+    const removeBtn=document.createElement('button'); removeBtn.textContent='×'; removeBtn.className='remove-btn';
+    removeBtn.onclick=()=>{ images.splice(i,1); renderPreviews(); }
+    const select=document.createElement('select'); select.innerHTML=`<option value="color">Original</option><option value="bw">Black & White</option>`;
+    select.onchange=e=>{ imgObj.mode=e.target.value; }
+    div.appendChild(img); div.appendChild(removeBtn); div.appendChild(select); preview.appendChild(div);
+  });
 }
 
-async function flattenPDF() {
-  const input = document.getElementById('flattenpdf-input');
-  if(!input.files.length) return alert('Upload PDF first');
-  const pdfBytes = await input.files[0].arrayBuffer();
-  const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-  pdfDoc.flatten();
-  const newBytes = await pdfDoc.save();
-  const blob = new Blob([newBytes], {type:'application/pdf'});
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'flattened.pdf';
-  link.click();
+function suggestFilename(){
+  const filenameInput=document.getElementById("filename");
+  const now=new Date();
+  const defaultName=`PDF_${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}.pdf`;
+  filenameInput.value=defaultName;
 }
+
+function sanitizeFilename(name){ return name.replace(/[\\/:*?"<>|]/g,''); }
+
+function processImage(imgObj,callback){
+  const img=new Image();
+  img.onload=()=>{
+    const canvas=document.createElement('canvas'); canvas.width=img.width; canvas.height=img.height;
+    const ctx=canvas.getContext('2d'); ctx.drawImage(img,0,0);
+    if(imgObj.mode==='bw'){
+      const data=ctx.getImageData(0,0,canvas.width,canvas.height);
+      for(let i=0;i<data.data.length;i+=4){
+        const avg=(data.data[i]+data.data[i+1]+data.data[i+2])/3;
+        data.data[i]=data.data[i+1]=data.data[i+2]=avg;
+      }
+      ctx.putImageData(data,0,0);
+    }
+    callback(canvas.toDataURL('image/jpeg'));
+  };
+  img.src=imgObj.src;
+}
+
+function generateImagePDF(){
+  if(images.length===0){ alert('Add at least one image'); return; }
+  const pdf=new jsPDF();
+  let processed=0;
+  images.forEach((imgObj,i)=>{
+    processImage(imgObj,(dataUrl)=>{
+      if(i>0) pdf.addPage();
+      pdf.addImage(dataUrl,'JPEG',10,10,190,277);
+      processed++;
+      if(processed===images.length){
+        let fname=sanitizeFilename(document.getElementById('filename').value.trim());
+        if(!fname) fname='output.pdf';
+        if(!fname.toLowerCase().endsWith('.pdf')) fname+='.pdf';
+        pdf.save(fname);
+      }
+    });
+  });
+}
+
+// ---------------- MERGE PDF ----------------
+function renderMergePDF(){
+  document.getElementById('content').innerHTML=`
+    <h1>Merge PDFs</h1>
+    <input type="file" id="mergeFiles" multiple accept="application/pdf"><br>
+    <input type="text" id="mergeFilename" placeholder="Output filename"><br>
+    <button onclick="mergePDFs()">Merge PDFs</button>
+  `;
+}
+
+async function mergePDFs(){
+  const files=document.getElementById('mergeFiles').files;
+  if(files.length<2){ alert('Select at least 2 PDFs'); return; }
+  const mergedPdf=await PDFLib.PDFDocument.create();
+  for(const file of files){
+    const arrayBuffer=await file.arrayBuffer();
+    const pdf=await PDFLib.PDFDocument.load(arrayBuffer);
+    const copiedPages=await mergedPdf.copyPages(pdf,pdf.getPageIndices());
+    copiedPages.forEach(p=>mergedPdf.addPage(p));
+  }
+  const pdfBytes=await mergedPdf.save();
+  let fname=document.getElementById('mergeFilename').value.trim()||'merged.pdf';
+  if(!fname.toLowerCase().endsWith('.pdf')) fname+='.pdf';
+  const blob=new Blob([pdfBytes],{type:'application/pdf'});
+  const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download=fname; link.click();
+}
+
+// ---------------- SPLIT PDF ----------------
+function renderSplitPDF(){
+  document.getElementById('content').innerHTML=`
+    <h1>Split PDF</h1>
+    <input type="file" id="splitFile" accept="application/pdf"><br>
+    <input type="text" id="splitPages" placeholder="Pages to extract (e.g. 1,3-5)"><br>
+    <input type="text" id="splitFilename" placeholder="Output filename"><br>
+    <button onclick="splitPDF()">Split PDF</button>
+  `;
+}
+
+async function splitPDF(){
+  const file=document.getElementById('splitFile').files[0];
+  if(!file){ alert('Select PDF'); return; }
+  const pagesText=document.getElementById('splitPages').value.trim();
+  const pdfBytes=await file.arrayBuffer();
+  const pdf=await PDFLib.PDFDocument.load(pdfBytes);
+  const newPdf=await PDFLib.PDFDocument.create();
+  const indices=[];
+  pagesText.split(',').forEach(r=>{
+    if(r.includes('-')){
+      const [start,end]=r.split('-').map(x=>parseInt(x)-1);
+      for(let i=start;i<=end;i++) indices.push(i);
+    }else indices.push(parseInt(r)-1);
+  });
+  const copied=await newPdf.copyPages(pdf,indices);
+  copied.forEach(p=>newPdf.addPage(p));
+  const outBytes=await newPdf.save();
+  let fname=document.getElementById('splitFilename').value.trim()||'split.pdf';
+  if(!fname.toLowerCase().endsWith('.pdf')) fname+='.pdf';
+  const blob=new Blob([outBytes],{type:'application/pdf'});
+  const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download=fname; link.click();
+}
+
+// ---------------- COMPRESS PDF ----------------
+function renderCompressPDF(){
+  document.getElementById('content').innerHTML=`
+    <h1>Compress PDF</h1>
+    <input type="file" id="compressFile" accept="application/pdf"><br>
+    <input type="range" id="qualityRange" min="0.1" max="1" step="0.1" value="0.7"><br>
+    <input type="text" id="compressFilename" placeholder="Output filename"><br>
+    <button onclick="compressPDF()">Compress PDF</button>
+  `;
+}
+
+async function compressPDF(){
+  const file=document.getElementById('compressFile').files[0];
+  if(!file){ alert('Select PDF'); return; }
+  const arrayBuffer=await file.arrayBuffer();
+  const pdf=await PDFLib.PDFDocument.load(arrayBuffer);
+  const newPdf=await PDFLib.PDFDocument.create();
+  const quality=parseFloat(document.getElementById('qualityRange').value);
+  const pages=pdf.getPages();
+  for(const page of pages){
+    const [w,h]=[page.getWidth(),page.getHeight()];
+    const pngBytes=await page.render().then(ctx=>ctx.canvas.toDataURL('image/jpeg',quality));
+    const img=await newPdf.embedJpg(pngBytes);
+    newPdf.addPage([w,h]).drawImage(img,{x:0,y:0,width:w,height:h});
+  }
+  const outBytes=await newPdf.save();
+  let fname=document.getElementById('compressFilename').value.trim()||'compressed.pdf';
+  if(!fname.toLowerCase().endsWith('.pdf')) fname+='.pdf';
+  const blob=new Blob([outBytes],{type:'application/pdf'});
+  const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download=fname; link.click();
+}
+
+// ---------------- WATERMARK PDF ----------------
+function renderWatermarkPDF(){
+  document.getElementById('content').innerHTML=`
+    <h1>Add Watermark</h1>
+    <input type="file" id="watermarkFile" accept="application/pdf"><br>
+    <input type="text" id="watermarkText" placeholder="Watermark text"><br>
+    <input type="text" id="watermarkFilename" placeholder="Output filename"><br>
+    <button onclick="addWatermark()">Add Watermark</button>
+  `;
+}
+
+async function addWatermark(){
+  const file=document.getElementById('watermarkFile').files[0];
+  const text=document.getElementById('watermarkText').value.trim();
+  if(!file||!text){ alert('Select PDF and enter watermark'); return; }
+  const pdf=await PDFLib.PDFDocument.load(await file.arrayBuffer());
+  const pages=pdf.getPages();
+  for(const page of pages){
+    page.drawText(text,{x:50,y:page.getHeight()/2, size:50, color:PDFLib.rgb(0.7,0.7,0.7), rotate:PDFLib.degrees(-45), opacity:0.3});
+  }
+  const outBytes=await pdf.save();
+  let fname=document.getElementById('watermarkFilename').value.trim()||'watermarked.pdf';
+  if(!fname.toLowerCase().endsWith('.pdf')) fname+='.pdf';
+  const blob=new Blob([outBytes],{type:'application/pdf'});
+  const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download=fname; link.click();
+}
+
+// ---------------- PROTECT / UNLOCK PDF ----------------
+function renderProtectPDF(){
+  document.getElementById('content').innerHTML=`
+    <h1>Protect / Unlock PDF</h1>
+    <input type="file" id="protectFile" accept="application/pdf"><br>
+    <input type="text" id="pdfPassword" placeholder="Enter password"><br>
+    <input type="text" id="protectFilename" placeholder="Enter output filename"><br>
+    <button onclick="protectPDF()">Encrypt PDF</button>
+    <button onclick="unlockPDF()">Decrypt PDF</button>
+  `;
+}
+
+window.protectPDF=async function(){
+  const file=document.getElementById('protectFile').files[0];
+  const pwd=document.getElementById('pdfPassword').value.trim();
+  const filenameInput=document.getElementById('protectFilename');
+  if(!file||!pwd){ alert("Select PDF and enter password"); return; }
+  const arrayBuffer=await file.arrayBuffer();
+  const wordArray = CryptoJS.lib.WordArray.create(arrayBuffer);
+  const encrypted = CryptoJS.AES.encrypt(wordArray, pwd).toString();
+  const blob=new Blob([encrypted], {type:"text/plain"});
+  let name=filenameInput.value.trim() || "encrypted.pdf";
+  if(!name.endsWith(".pdf")) name+=".pdf";
+  const link=document.createElement("a"); link.href=URL.createObjectURL(blob); link.download=name; link.click();
+}
+
+window.unlockPDF=async function(){
+  const file=document.getElementById('protectFile').files[0];
+  const pwd=document.getElementById('pdfPassword').value.trim();
+  const filenameInput=document.getElementById('protectFilename');
+  if(!file||!pwd){ alert("Select file and enter password"); return; }
+  const text = await file.text();
+  try{
+    const decrypted = CryptoJS.AES.decrypt(text, pwd);
+    const typedArray = Uint8Array.from(decrypted.words.flatMap(word => [
+      (word >> 24) & 0xFF,
+      (word >> 16) & 0xFF,
+      (word >> 8) & 0xFF,
+      word & 0xFF
+    ])).slice(0, decrypted.sigBytes);
+    const blob=new Blob([typedArray], {type:"application/pdf"});
+    let name=filenameInput.value.trim() || "decrypted.pdf";
+    if(!name.endsWith(".pdf")) name+=".pdf";
+    const link=document.createElement("a"); link.href=URL.createObjectURL(blob); link.download=name; link.click();
+  } catch(e){
+    alert("Incorrect password or invalid file!");
+  }
+}
+
+// Load default tool
+showTool('imagepdf');
 </script>
 </body>
 </html>
