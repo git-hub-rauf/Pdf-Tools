@@ -1,146 +1,355 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Tools Hub</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f4f4f9; }
-    header { background: #333; color: white; padding: 10px 20px; text-align: center; }
-    .container { display: flex; flex-wrap: wrap; justify-content: space-around; padding: 20px; }
-    .tool { background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 30%; margin: 10px; padding: 20px; }
-    .tool h2 { margin-top: 0; }
-    .tool button { background: #007bff; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; }
-    .tool button:hover { background: #0056b3; }
-    input[type="file"] { display: none; }
-    .output { margin-top: 10px; text-align: center; }
-    .output a { color: #007bff; text-decoration: none; }
-    .output a:hover { text-decoration: underline; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Premium PDF Tools Hub</title>
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f4f6;
+    color: #333;
+  }
+  header {
+    background: #1f2937;
+    color: #f9fafb;
+    padding: 15px 20px;
+    text-align: center;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.8em;
+  }
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .sidebar {
+    background: #111827;
+    color: #f9fafb;
+    width: 250px;
+    min-height: 100vh;
+    padding-top: 20px;
+  }
+  .sidebar h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .sidebar button {
+    display: block;
+    width: 90%;
+    margin: 5px auto;
+    padding: 10px;
+    border: none;
+    background: #374151;
+    color: #f9fafb;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: left;
+  }
+  .sidebar button:hover {
+    background: #4b5563;
+  }
+  .main {
+    flex: 1;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  .tool {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+    padding: 20px;
+  }
+  .tool h2 {
+    margin-top: 0;
+  }
+  .tool button, .tool input[type="file"] {
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+    cursor: pointer;
+  }
+  .tool button {
+    background: #3b82f6;
+    color: #fff;
+    border: none;
+  }
+  .tool button:hover {
+    background: #2563eb;
+  }
+  .output a {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  .output a:hover {
+    text-decoration: underline;
+  }
+  @media(max-width: 768px) {
+    .container { flex-direction: column; }
+    .sidebar { width: 100%; min-height: auto; display: flex; overflow-x: auto; }
+    .sidebar button { flex: 1; margin: 5px; text-align: center; }
+  }
+</style>
 </head>
 <body>
 
 <header>
-  <h1>PDF Tools Hub</h1>
-  <p>Manage your PDFs effortlessly</p>
+  <h1>Premium PDF Tools Hub</h1>
+  <p>All your PDF tools in one place</p>
 </header>
 
 <div class="container">
-  <!-- Remove Pages Tool -->
-  <div class="tool">
-    <h2>Remove Pages</h2>
-    <button onclick="document.getElementById('remove-file').click()">Upload PDF</button>
-    <input id="remove-file" type="file" accept="application/pdf" onchange="handleRemoveFile(event)">
-    <div class="output" id="remove-output"></div>
+  <div class="sidebar">
+    <h2>Tools</h2>
+    <button onclick="showTool('imagepdf')">Image → PDF</button>
+    <button onclick="showTool('mergepdf')">Merge PDFs</button>
+    <button onclick="showTool('splitpdf')">Split PDF</button>
+    <button onclick="showTool('compresspdf')">Compress PDF</button>
+    <button onclick="showTool('watermarkpdf')">Add Watermark</button>
+    <button onclick="showTool('protectpdf')">Protect/Unlock PDF</button>
+    <button onclick="showTool('removepages')">Remove Pages</button>
+    <button onclick="showTool('rotatepages')">Rotate Pages</button>
+    <button onclick="showTool('flattenpdf')">Flatten PDF</button>
   </div>
 
-  <!-- Rotate Pages Tool -->
-  <div class="tool">
-    <h2>Rotate Pages</h2>
-    <button onclick="document.getElementById('rotate-file').click()">Upload PDF</button>
-    <input id="rotate-file" type="file" accept="application/pdf" onchange="handleRotateFile(event)">
-    <div class="output" id="rotate-output"></div>
-  </div>
-
-  <!-- Flatten PDF Tool -->
-  <div class="tool">
-    <h2>Flatten PDF</h2>
-    <button onclick="document.getElementById('flatten-file').click()">Upload PDF</button>
-    <input id="flatten-file" type="file" accept="application/pdf" onchange="handleFlattenFile(event)">
-    <div class="output" id="flatten-output"></div>
+  <div class="main">
+    <!-- Tools Container -->
+    <div id="tools-container"></div>
   </div>
 </div>
 
 <script src="https://unpkg.com/pdf-lib"></script>
 <script>
-  // Remove Pages
-  async function handleRemoveFile(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const pdfBytes = await file.arrayBuffer();
-    const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-    const pages = pdfDoc.getPages();
-    const totalPages = pages.length;
+const toolsContainer = document.getElementById('tools-container');
 
-    // Prompt user for pages to remove
-    const pagesToRemove = prompt(`Enter page numbers to remove (1-${totalPages}), separated by commas:`).split(',').map(num => parseInt(num.trim()) - 1);
-
-    // Remove selected pages
-    pagesToRemove.forEach(pageIndex => {
-      if (pageIndex >= 0 && pageIndex < totalPages) {
-        pdfDoc.removePage(pageIndex);
-      }
-    });
-
-    // Save and download the modified PDF
-    const pdfBytesModified = await pdfDoc.save();
-    const blob = new Blob([pdfBytesModified], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'modified.pdf';
-    link.click();
-
-    // Display output
-    document.getElementById('remove-output').innerHTML = 'PDF processed successfully. <a href="' + url + '" download>Download</a>';
+function showTool(tool) {
+  if(tool === 'imagepdf') {
+    toolsContainer.innerHTML = `
+      <div class="tool">
+        <h2>Image → PDF</h2>
+        <input id="imagepdf-input" type="file" multiple accept="image/*">
+        <button onclick="convertImagesToPDF()">Convert to PDF</button>
+        <div class="output" id="imagepdf-output"></div>
+      </div>`;
+  } else if(tool === 'mergepdf') {
+    toolsContainer.innerHTML = `
+      <div class="tool">
+        <h2>Merge PDFs</h2>
+        <input id="mergepdf-input" type="file" multiple accept="application/pdf">
+        <button onclick="mergePDFs()">Merge PDFs</button>
+        <div class="output" id="mergepdf-output"></div>
+      </div>`;
+  } else if(tool === 'splitpdf') {
+    toolsContainer.innerHTML = `
+      <div class="tool">
+        <h2>Split PDF</h2>
+        <input id="splitpdf-input" type="file" accept="application/pdf">
+        <button onclick="splitPDF()">Split PDF</button>
+        <div class="output" id="splitpdf-output"></div>
+      </div>`;
+  } else if(tool === 'compresspdf') {
+    toolsContainer.innerHTML = `
+      <div class="tool">
+        <h2>Compress PDF</h2>
+        <input id="compresspdf-input" type="file" accept="application/pdf">
+        <button onclick="compressPDF()">Compress PDF</button>
+        <div class="output" id="compresspdf-output"></div>
+      </div>`;
+  } else if(tool === 'watermarkpdf') {
+    toolsContainer.innerHTML = `
+      <div class="tool">
+        <h2>Add Watermark</h2>
+        <input id="watermarkpdf-input" type="file" accept="application/pdf">
+        <input id="watermark-text" placeholder="Watermark Text" type="text">
+        <button onclick="addWatermark()">Add Watermark</button>
+        <div class="output" id="watermarkpdf-output"></div>
+      </div>`;
+  } else if(tool === 'protectpdf') {
+    toolsContainer.innerHTML = `
+      <div class="tool">
+        <h2>Protect/Unlock PDF</h2>
+        <input id="protectpdf-input" type="file" accept="application/pdf">
+        <input id="protect-password" placeholder="Enter password" type="text">
+        <button onclick="protectUnlockPDF()">Protect/Unlock PDF</button>
+        <div class="output" id="protectpdf-output"></div>
+      </div>`;
+  } else if(tool === 'removepages') {
+    toolsContainer.innerHTML = `
+      <div class="tool">
+        <h2>Remove Pages</h2>
+        <input id="removepages-input" type="file" accept="application/pdf">
+        <button onclick="removePages()">Remove Pages</button>
+        <div class="output" id="removepages-output"></div>
+      </div>`;
+  } else if(tool === 'rotatepages') {
+    toolsContainer.innerHTML = `
+      <div class="tool">
+        <h2>Rotate Pages</h2>
+        <input id="rotatepages-input" type="file" accept="application/pdf">
+        <button onclick="rotatePages()">Rotate Pages</button>
+        <div class="output" id="rotatepages-output"></div>
+      </div>`;
+  } else if(tool === 'flattenpdf') {
+    toolsContainer.innerHTML = `
+      <div class="tool">
+        <h2>Flatten PDF</h2>
+        <input id="flattenpdf-input" type="file" accept="application/pdf">
+        <button onclick="flattenPDF()">Flatten PDF</button>
+        <div class="output" id="flattenpdf-output"></div>
+      </div>`;
   }
+}
 
-  // Rotate Pages
-  async function handleRotateFile(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const pdfBytes = await file.arrayBuffer();
-    const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-    const pages = pdfDoc.getPages();
-
-    // Prompt user for rotation angle
-    const angle = parseInt(prompt('Enter rotation angle (90, 180, 270):'));
-    if (![90, 180, 270].includes(angle)) {
-      alert('Invalid angle. Please enter 90, 180, or 270.');
-      return;
+// PDF Tools Functions
+async function convertImagesToPDF() {
+  const input = document.getElementById('imagepdf-input');
+  if(!input.files.length) return alert('Upload images first');
+  const pdfDoc = await PDFLib.PDFDocument.create();
+  for(const file of input.files){
+    const imgBytes = await file.arrayBuffer();
+    let img;
+    if(file.type.includes('png')){
+      img = await pdfDoc.embedPng(imgBytes);
+    } else {
+      img = await pdfDoc.embedJpg(imgBytes);
     }
-
-    // Rotate each page
-    pages.forEach(page => {
-      page.setRotation(page.getRotation() + angle);
-    });
-
-    // Save and download the rotated PDF
-    const pdfBytesRotated = await pdfDoc.save();
-    const blob = new Blob([pdfBytesRotated], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'rotated.pdf';
-    link.click();
-
-    // Display output
-    document.getElementById('rotate-output').innerHTML = 'PDF rotated successfully. <a href="' + url + '" download>Download</a>';
+    const page = pdfDoc.addPage([img.width, img.height]);
+    page.drawImage(img, {x:0, y:0, width: img.width, height: img.height});
   }
+  const pdfBytes = await pdfDoc.save();
+  const blob = new Blob([pdfBytes], {type:'application/pdf'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'images.pdf';
+  link.click();
+}
 
-  // Flatten PDF
-  async function handleFlattenFile(event) {
-    const file = event.target.files[0];
-    if (!file) return;
+async function mergePDFs() {
+  const input = document.getElementById('mergepdf-input');
+  if(!input.files.length) return alert('Upload PDFs first');
+  const mergedPdf = await PDFLib.PDFDocument.create();
+  for(const file of input.files){
     const pdfBytes = await file.arrayBuffer();
-    const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+    const pdf = await PDFLib.PDFDocument.load(pdfBytes);
+    const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+    copiedPages.forEach(page => mergedPdf.addPage(page));
+  }
+  const pdfBytes = await mergedPdf.save();
+  const blob = new Blob([pdfBytes], {type:'application/pdf'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'merged.pdf';
+  link.click();
+}
 
-    // Flatten the PDF
-    pdfDoc.flatten();
-
-    // Save and download the flattened PDF
-    const pdfBytesFlattened = await pdfDoc.save();
-    const blob = new Blob([pdfBytesFlattened], { type: 'application/pdf' });
+async function splitPDF() {
+  const input = document.getElementById('splitpdf-input');
+  if(!input.files.length) return alert('Upload a PDF first');
+  const pdfBytes = await input.files[0].arrayBuffer();
+  const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+  const pages = pdfDoc.getPages();
+  for(let i=0;i<pages.length;i++){
+    const newPdf = await PDFLib.PDFDocument.create();
+    const [copied] = await newPdf.copyPages(pdfDoc, [i]);
+    newPdf.addPage(copied);
+    const newBytes = await newPdf.save();
+    const blob = new Blob([newBytes], {type:'application/pdf'});
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'flattened.pdf';
+    link.download = `page-${i+1}.pdf`;
     link.click();
-
-    // Display output
-    document.getElementById('flatten-output').innerHTML = 'PDF flattened successfully. <a href="' + url + '" download>Download</a>';
   }
-</script>
+}
 
+async function compressPDF() {
+  alert('Compressing PDF in-browser is limited. Advanced compression requires server-side processing.');
+}
+
+async function addWatermark() {
+  const input = document.getElementById('watermarkpdf-input');
+  const text = document.getElementById('watermark-text').value;
+  if(!input.files.length) return alert('Upload PDF first');
+  if(!text) return alert('Enter watermark text');
+  const pdfBytes = await input.files[0].arrayBuffer();
+  const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+  const pages = pdfDoc.getPages();
+  for(const page of pages){
+    page.drawText(text, {x:50, y:50, size:30, opacity:0.3});
+  }
+  const newBytes = await pdfDoc.save();
+  const blob = new Blob([newBytes], {type:'application/pdf'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'watermarked.pdf';
+  link.click();
+}
+
+async function protectUnlockPDF() {
+  alert('Protect/Unlock PDF client-side requires more advanced JS libraries. Skipping for now.');
+}
+
+async function removePages() {
+  const input = document.getElementById('removepages-input');
+  if(!input.files.length) return alert('Upload PDF first');
+  const pdfBytes = await input.files[0].arrayBuffer();
+  const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+  const pages = pdfDoc.getPages();
+  const totalPages = pages.length;
+  const pagesToRemove = prompt(`Enter pages to remove (1-${totalPages}), separated by commas:`).split(',').map(p=>parseInt(p.trim())-1);
+  pagesToRemove.forEach(p=>{
+    if(p>=0 && p<totalPages) pdfDoc.removePage(p);
+  });
+  const newBytes = await pdfDoc.save();
+  const blob = new Blob([newBytes], {type:'application/pdf'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'modified.pdf';
+  link.click();
+}
+
+async function rotatePages() {
+  const input = document.getElementById('rotatepages-input');
+  if(!input.files.length) return alert('Upload PDF first');
+  const pdfBytes = await input.files[0].arrayBuffer();
+  const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+  const pages = pdfDoc.getPages();
+  const angle = parseInt(prompt('Enter rotation angle (90,180,270):'));
+  if(![90,180,270].includes(angle)) return alert('Invalid angle');
+  pages.forEach(p=>p.setRotation(p.getRotation()+angle));
+  const newBytes = await pdfDoc.save();
+  const blob = new Blob([newBytes], {type:'application/pdf'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'rotated.pdf';
+  link.click();
+}
+
+async function flattenPDF() {
+  const input = document.getElementById('flattenpdf-input');
+  if(!input.files.length) return alert('Upload PDF first');
+  const pdfBytes = await input.files[0].arrayBuffer();
+  const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+  pdfDoc.flatten();
+  const newBytes = await pdfDoc.save();
+  const blob = new Blob([newBytes], {type:'application/pdf'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'flattened.pdf';
+  link.click();
+}
+</script>
 </body>
 </html>
